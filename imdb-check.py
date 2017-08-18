@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from imdbpie import Imdb
-import logging, PTN, sys, urllib.request
+import logging, os, PTN, sys, urllib.request
 
 torrent_name = sys.argv[1:][0]
 torrent_url = sys.argv[1:][1]
@@ -19,6 +19,16 @@ imdb = Imdb()
 movie_info = PTN.parse(torrent_name)
 
 if movie_info is not None:
+
+    f = open("movies-list.txt", "ab+")
+    f.seek(0, os.SEEK_SET)
+
+    for line in f.readlines():
+        if movie_info['title'] == line.decode('utf-8').strip():
+            sys.exit(0)
+
+    f.write(bytes((movie_info['title'] + '\n').encode('utf-8')))
+
     try:
         rating = imdb.get_title_by_id(imdb.search_for_title(movie_info['title'])[0]['imdb_id']).rating
         if rating >= float(required_rating):
